@@ -1,0 +1,20 @@
+{
+  "name": "project-template",
+  "version": "1.0.0",
+  "description": "simple template to get your project started",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kknopper/project-template.git"
+  },
+  "author": "kevin knopp",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/maxogden/menubar/issues"
+  },
+  "homepage": "https://github.com/maxogden/menubar",
+  {
+  "dependencies": {
+    "normalize.css": "^5.0.0"
+  }
+}
