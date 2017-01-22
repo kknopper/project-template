@@ -1,4 +1,5 @@
 var gulp = require('gulp'),
+	gutil = require('gulp-util'),
 	sass = require('gulp-sass'),
 	scsslint = require('gulp-scss-lint'),
 	concat = require('gulp-concat'),
@@ -11,6 +12,7 @@ var gulp = require('gulp'),
  	imagemin = require('gulp-imagemin'),
  	source = require('vinyl-source-stream');
  	buffer = require('vinyl-buffer'),
+ 	exorcist = require('exorcist'),
  	browserify = require('browserify'),
  	babelify = require('babelify'),
  	watchify = require('watchify'),
@@ -34,7 +36,6 @@ var conf = {
 		"imgs": conf.distRoot + '/images/',
 		"docs": conf.distRoot + '/documents/'
 	}
-
 };
 
 //SCRIPTS WITH ES6 BABEL and Watchify
@@ -53,7 +54,7 @@ function scripts(watch) {
 
 		bundler.bundle()
 		  .on('error', function(err) { console.error(err); gutil.log(err); browserSync.notify("Browserify Error!"); this.emit('end'); })
-		  .pipe(exorcist(conf.dist+'/bundle.js.map'))
+		  .pipe(exorcist(conf.dist.js + 'bundle.js.map'))
 		  .pipe(source('main.js'))
 		  .pipe(buffer())
 		  .pipe(sourcemaps.init({ loadMaps: true }))
