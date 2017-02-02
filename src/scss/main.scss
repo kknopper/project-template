@@ -1,5 +1,12 @@
+//Add Normalize and Sanitize CSS libraties
+@import "../../node_modules/normalize-scss/sass/normalize/import-now.scss";
+@import '../../node_modules/sanitize.css/sanitize.css';
+
+//Add mixins
 @import "helpers/mixins.scss";
 
-#main {
 
+#main {
+	background-color: black;
+	color: white;
 }

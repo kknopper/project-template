@@ -24,6 +24,7 @@
     "gulp-concat": "^2.6.1",
     "gulp-imagemin": "^3.1.1",
     "gulp-jshint": "^2.0.4",
+    "gulp-plumber": "^1.1.0",
     "gulp-sass": "^3.1.0",
     "gulp-scss-lint": "^0.4.0",
     "gulp-sourcemaps": "^2.4.0",
@@ -32,5 +33,9 @@
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.8.0"
+  },
+  "dependencies": {
+    "normalize-scss": "^6.0.0",
+    "sanitize.css": "^4.1.0"
   }
 }

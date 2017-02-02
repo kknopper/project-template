@@ -1,5 +1,6 @@
 var gulp = require('gulp'),
 	gutil = require('gulp-util'),
+	plumber = require('gulp-plumber'),
 	sass = require('gulp-sass'),
 	scsslint = require('gulp-scss-lint'),
 	concat = require('gulp-concat'),
@@ -130,13 +131,16 @@ gulp.task('html', function(){
 
 //Scss with autoprefixer and sourcemaps
 gulp.task('scss', function(){
-	return gulp.src(conf.src.scss)
+	gulp.src(conf.src.scss)
+		.pipe(plumber())
 		.pipe(sourcemaps.init())
-	    .pipe(sass.sync().on('error', sass.logError))
+	    .pipe(sass.sync({
+			// includePaths: ['../node_modules/normalize-scss/sass']
+	    }).on('error', sass.logError))
 	    .pipe(sourcemaps.write())
 	    .pipe(autoprefixer())
 	    .pipe(gulp.dest(conf.dist.css))
-	    // .pipe(browserSync.stream());
+	    .pipe(browserSync.stream());
 });
 
 
@@ -154,7 +158,7 @@ gulp.task('server', function() {
   	});
 
 	browserSync.init({
-        proxy: "http://127.0.0.1:8080/",
+        proxy: "http://project-template.kevin.dev",
         open: true
     });
 })
