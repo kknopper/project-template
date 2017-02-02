@@ -4,7 +4,7 @@ var gulp = require('gulp'),
 	scsslint = require('gulp-scss-lint'),
 	concat = require('gulp-concat'),
 	uglify = require('gulp-uglify'),
-	jshint = require('gulp-jshint'),
+	// jshint = require('gulp-jshint'),
 	del = require('del'),
 	runSequence = require('run-sequence'),
 	sourcemaps = require('gulp-sourcemaps'),
@@ -16,32 +16,41 @@ var gulp = require('gulp'),
  	browserify = require('browserify'),
  	babelify = require('babelify'),
  	watchify = require('watchify'),
+ 	htmlInjector = require('bs-html-injector'),
  	browserSync = require('browser-sync').create();
 
+var paths = {
+	srcRoot: "./src",
+	distRoot: "./target"
+}
+
 var conf = {
-	"src" : "./src/**/*",
-	"srcRoot": "./src/"
-	"src": {
-		"js": conf.srcRoot + '/js/main.js',
-		"scss": conf.srcRoot + '/scss/**/*.scss',
-		"fonts": conf.srcRoot + '/fonts/**/*',
-		"imgs": conf.srcRoot + '/images/**/*',
-		"docs": conf.srcRoot + '/documents/**/*'
-	}
-	"distRoot" : "./dist/",
-	"dist": {
-		"js": conf.distRoot + '/js/',
-		"scss": conf.distRoot + '/scss/',
-		"fonts": conf.distRoot + '/fonts/',
-		"imgs": conf.distRoot + '/images/',
-		"docs": conf.distRoot + '/documents/'
+	src: {
+		html: paths.srcRoot + '/html/*.html',
+		js: paths.srcRoot + '/js/main.js',
+		scss: paths.srcRoot + '/scss/**/*.scss',
+		fonts: paths.srcRoot + '/fonts/**/*',
+		imgs: paths.srcRoot + '/images/**/*',
+		docs: paths.srcRoot + '/documents/**/*'
+	},
+	dist: {
+		html: paths.distRoot + '/',
+		js: paths.distRoot + '/js/',
+		css: paths.distRoot + '/css/',
+		fonts: paths.distRoot + '/fonts/',
+		imgs: paths.distRoot + '/images/',
+		docs: paths.distRoot + '/documents/'
 	}
 };
 
 //SCRIPTS WITH ES6 BABEL and Watchify
 function scripts(watch) {
 
-	var bundler = watchify(browserify('./src/main.js', { debug: true }));
+	if (watch) {
+		var bundler = watchify(browserify('./src/js/main.js', { debug: true }));
+	} else {
+		var bundler = browserify('./src/js/main.js', { debug: true });
+	}
 	
 	//Transform with Babel
 	bundler.transform(babelify.configure({
@@ -88,20 +97,19 @@ gulp.task('js-watch', function() { return scriptsWatch(); });
 
 //Copies fonts from src to dist
 gulp.task('fonts', function(){
-	gulp.src(conf.fonts)
-		.pipe(gulp.dest(conf.dist + /fonts/));
+	gulp.src(conf.src.fonts)
+		.pipe(gulp.dest(conf.dist.fonts));
 	browserSync.reload();
-	done();
+	// done();
 });
 
 
 //Minify images
 gulp.task('imgs', function() {
-	gulp.src(conf.images)
+	gulp.src(conf.src.imgs)
         .pipe(imagemin())
-        .pipe(gulp.dest(conf.dist + /images/));
-    browserSync.reload();
-	done();
+        .pipe(gulp.dest(conf.dist.imgs));
+    // browserSync.reload();
 });
 
 
@@ -109,31 +117,42 @@ gulp.task('imgs', function() {
 gulp.task('docs', function(){
 	gulp.src(conf.src.docs)
 		.pipe(gulp.dest(conf.dist.docs));
-	browserSync.reload();
-	done();
+	// browserSync.reload();
+	// done();
 });
 
+gulp.task('html', function(){
+	// var dest = conf.dist + "/css/"
+	return gulp.src(conf.src.html)
+	    .pipe(gulp.dest(conf.dist.html))
+	    .pipe(browserSync.stream());
+});
 
 //Scss with autoprefixer and sourcemaps
 gulp.task('scss', function(){
-	var dest = conf.dist + "/css/"
 	return gulp.src(conf.src.scss)
 		.pipe(sourcemaps.init())
 	    .pipe(sass.sync().on('error', sass.logError))
 	    .pipe(sourcemaps.write())
 	    .pipe(autoprefixer())
-	    .pipe(gulp.dest(conf.dest.scss))
-	    .pipe(browserSync.stream());
+	    .pipe(gulp.dest(conf.dist.css))
+	    // .pipe(browserSync.stream());
 });
 
 
 //Deletes dist root before every build
 gulp.task('clean', function(){
-	return del([conf.distRoot]);
+	return del([paths.distRoot+'/**/*']);
 });
 
 //Start browser-Sync Server
 gulp.task('server', function() {
+	
+	//Inject html without reloading
+	browserSync.use(htmlInjector, {
+    	files: conf.dist.html
+  	});
+
 	browserSync.init({
         proxy: "http://127.0.0.1:8080/",
         open: true
@@ -142,11 +161,12 @@ gulp.task('server', function() {
 
 //Default gulp cmd
 gulp.task('default', function() {
-	runSequence('server', 'clean', ['scss', 'scripts', 'fonts', 'imgs', 'docs'])
+	runSequence('clean', ['html', 'scss', 'js', 'fonts', 'imgs', 'docs'])
 });
 
 gulp.task('watch', function() {
-	runSequence('clean', ['scss', 'js', 'fonts', 'imgs', 'docs']);
+	runSequence('clean', ['html', 'scss', 'js', 'fonts', 'imgs', 'docs']);
+	gulp.watch(conf.src.html, ['html']);
 	gulp.watch(conf.src.scss, ['scss']);
 	gulp.watch(conf.src.imgs, ['imgs']);
 	gulp.watch(conf.src.docs, ['docs']);
