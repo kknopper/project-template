@@ -128,14 +128,21 @@ gulp.task('html', function(){
 	    .pipe(gulp.dest(conf.dist.html))
 	    .pipe(browserSync.stream());
 });
+console.log(__dirname)
 
 //Scss with autoprefixer and sourcemaps
 gulp.task('scss', function(){
+	console.log(__dirname + '/node_modules')
 	gulp.src(conf.src.scss)
 		.pipe(plumber())
 		.pipe(sourcemaps.init())
 	    .pipe(sass.sync({
-			// includePaths: ['../node_modules/normalize-scss/sass']
+			includePaths: [
+				// __dirname + '/node_modules/normalize.css/',
+				// __dirname + '/node_modules/sanitize.css/',
+				__dirname + '/node_modules/megatype/',
+				__dirname + '/node_modules/Kraken/src/sass'
+			]
 	    }).on('error', sass.logError))
 	    .pipe(sourcemaps.write())
 	    .pipe(autoprefixer())
